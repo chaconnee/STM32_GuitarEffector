@@ -2,6 +2,7 @@
 #include "model/effect_chain.h"
 #include "adc.h"
 #include "i2s.h"
+#include <math.h>
 
 #include "effects/amp_sim/amp_sim.h"
 #include "effects/cab_sim/cab_sim.h"
@@ -22,6 +23,11 @@ static void Process_Half(uint8_t half)
     }
 
     EffectChain_Process(dsp_buffer, AUDIO_BUFFER_SIZE);
+
+    /* 软限幅: 防止 Cab 共振频域输出超过 ±1.0 时硬削波 */
+    for (uint16_t i = 0; i < AUDIO_BUFFER_SIZE; i++) {
+        dsp_buffer[i] = tanhf(dsp_buffer[i]);
+    }
 
     int16_t *dst = &i2s_buffer[half * AUDIO_BUFFER_SIZE * 2];
     for (uint16_t i = 0; i < AUDIO_BUFFER_SIZE; i++)

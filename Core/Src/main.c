@@ -30,6 +30,7 @@
 #include "AudioPipeline.h"
 #include "effects/amp_sim/amp_sim.h"
 #include "effects/cab_sim/cab_sim.h"
+#include  "cdc_command.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -55,7 +56,7 @@
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
-
+static void processdata(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -69,7 +70,6 @@ void SystemClock_Config(void);
   */
 int main(void)
 {
-
   /* USER CODE BEGIN 1 */
   SCB->VTOR = FLASH_BASE | 0x4000;
 
@@ -104,9 +104,10 @@ int main(void)
 
   AudioPipeline_Init();
 
-  /* LED reflects initial bypass state: ON=active, OFF=bypassed (PC13 active-low) */
-  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13,
-                    amp_sim_effect.bypassed ? GPIO_PIN_SET : GPIO_PIN_RESET);
+  /* Amp always bypassed. LED: ON=cab active, OFF=dry passthrough (PC13 active-low) */
+  amp_sim_effect.bypassed = 1;
+  cab_sim_effect.bypassed = 0;
+  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET); /* LED off = cab off */
 
   uint32_t key_tick = 0;
   GPIO_PinState key_last = GPIO_PIN_SET;
@@ -129,16 +130,17 @@ int main(void)
 
       if (key_last == GPIO_PIN_RESET && key_now == GPIO_PIN_SET)
       {
-        /* Release detected: toggle both amp_sim and cab_sim */
-        amp_sim_effect.bypassed = !amp_sim_effect.bypassed;
-        cab_sim_effect.bypassed = amp_sim_effect.bypassed;
+        /* Release detected: toggle cab (amp always bypassed) */
+        cab_sim_effect.bypassed = !cab_sim_effect.bypassed;
         HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13,
-                          amp_sim_effect.bypassed ? GPIO_PIN_SET : GPIO_PIN_RESET);
+                          cab_sim_effect.bypassed ? GPIO_PIN_SET : GPIO_PIN_RESET);
       }
       key_last = key_now;
     }
+
+    process_cdc_cmd();
+    /* USER CODE END 3 */
   }
-  /* USER CODE END 3 */
 }
 
 /**
@@ -187,6 +189,10 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+void processdata(void)
+{
+
+}
 
 /* USER CODE END 4 */
 
