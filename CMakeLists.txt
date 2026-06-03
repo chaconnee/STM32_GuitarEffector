@@ -28,6 +28,8 @@ add_executable(${CMAKE_PROJECT_NAME}
         APP/effects/amp_sim/amp_sim.c
         APP/effects/cab_sim/cab_sim.c
         APP/effects/cab_sim/cab_sim.h
+        APP/cdc_command.c
+        APP/cdc_command.h
 )
 
 add_subdirectory(cmake/stm32cubemx)
