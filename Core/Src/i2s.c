@@ -73,7 +73,7 @@ void HAL_I2S_MspInit(I2S_HandleTypeDef* i2sHandle)
   */
     PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_I2S;
     PeriphClkInitStruct.PLLI2S.PLLI2SN = 256;
-    PeriphClkInitStruct.PLLI2S.PLLI2SM = 16;
+    PeriphClkInitStruct.PLLI2S.PLLI2SM = 25;
     PeriphClkInitStruct.PLLI2S.PLLI2SR = 5;
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
     {
